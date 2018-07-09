@@ -1,0 +1,86 @@
+------------------------------BackGround---------------------------------------
+udev is mainly used for the following purposes:
+  • Rename a device node from the default name to something else
+  • Provide an alternative/persistent name for a device node by creating a 
+    symbolic link to the default device node
+  • Name a device node based on the output of a program
+  • Change permissions and ownership of a device node
+  • Launch a script when a device node is created or deleted (typically when 
+    a device is attached or unplugged)
+  • Rename network interfaces
+
+Here in this example we write rules for the following devices:
+1. USB to Serial Converter by FTDI
+   --------------------------------
+   On connecting this device
+   /dev Node  - /dev/ttyUSB0
+   /sys Entry - /sys/bus/usb-serial/devices/ttyUSB0/tty/ttyUSB0/
+
+   We write a rule to match this device and create a symbolic link for it in
+   /dev/mySerialUSB
+
+   On disconnecting the device 
+   /dev Node, /sys Entry and the symbolic link is destroyed.
+
+2. Virtual Device
+   ---------------
+   On deploying this module:
+   /dev Node  - /dev/customDev is created
+   /sys Entry - /sys/devices/virtual/VIRTUAL/customDev/
+
+   We write a rule to match this device and create a symbolic link for it in
+   /dev/myVirtualDevice
+
+   On disconnecting the device
+   /dev Node, /sys Entry and the symbolic link is destroyed.
+-------------------------------------------------------------------------------
+
+
+-------------------------------Commands----------------------------------------
+1. To monitor udev events on device connection and disconnection:
+   #udevadm monitor
+
+2. To find out the details about the device and to get the parameters to write 
+   udev rules:
+   #udevadm info -a -n <YourDeviceNode>
+
+   Eg: udevadm info -a -n /dev/ttyUSB0
+
+   Note - The above command has -a option which causes walkthrough from the 
+          device to all parent devices along the chain, up to the root of sysfs 
+          that can be used in udev rules.
+          Carefully identify the device and its corresponding subsystem.
+
+3. Testing the rules:
+   #udevadm test <YourDeviceSysEntryPath>
+
+   Eg: udevadm test /sys/bus/usb-serial/devices/ttyUSB0/tty/ttyUSB0/
+-------------------------------------------------------------------------------
+
+
+-------------------Steps For Deployment and Testing----------------------------
+1.Define udev rules in same or different files.
+  These files must have an extension of .rules
+  Copy these files to /etc/udev/rules.d/ folder
+
+2.Update udev memory with these new rules
+  #udevadm control --reload-rules
+
+3.If device is removable then disconnect and reconnect the device
+  If device is virtual device module then rmmod and insmod it
+  If device is a non removable one then restart the system or use command
+  #udevadm trigger --verbose --dry-run --type=devices 
+   --subsystem-match=<YourDeviceSubsystem>
+
+4.Check if the operation specified in the rule (i.e creation of Symlink) is 
+  successful.
+-------------------------------------------------------------------------------
+
+
+--------------------------------TODO-------------------------------------------
+Instead of Creating a Symbolic Link in the Rule we may also use ACTION matchkey
+to sense device add and remove and do relevant tasks.
+Also RUN identifier can be used to Execute a script or do any work on device.
+
+Resource - Writing udev Rules by Daniel Drake
+-------------------------------------------------------------------------------

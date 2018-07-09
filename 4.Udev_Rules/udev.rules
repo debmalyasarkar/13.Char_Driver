@@ -1,0 +1,4 @@
+# USB to Serial Converter Device FTDI
+KERNEL=="ttyUSB0", SUBSYSTEM=="tty", SYMLINK+="mySerialUSB"
+# Virtual Device from Module
+KERNEL=="customDev", SUBSYSTEM=="VIRTUAL", SYMLINK+="myVirtualDevice"

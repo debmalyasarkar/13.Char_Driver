@@ -1,0 +1,22 @@
+Create 6 device files using commands : 
+  mknod /dev/custom0 c 190 0 
+  mknod /dev/custom1 c 190 1
+  mknod /dev/custom2 c 190 2
+  mknod /dev/custom3 c 190 3
+  mknod /dev/custom4 c 190 4
+  mknod /dev/custom5 c 190 5
+
+In Driver - 5 Devices Valid
+Last Device is for Testing (Invalid Device)
+
+Open userApp.c and change the name of the file to custom0
+Compile and Run
+Check dmesg to see dev_id
+
+Repeat the process by changing file name to custom1 to custom5
+
+We will get valid dev_ids till custom4.
+custom5 device will give error.
+
+In this way inside driver we can identify the device and perfom device 
+specific operations.
